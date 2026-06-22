@@ -1,0 +1,571 @@
+╔══════════════════════════════════════════════════════════════════════════╗
+║          SCHOLARSHIP ELIGIBILITY PORTAL — COMPLETE SETUP GUIDE          ║
+║              MCA Final Year Project | JAX-WS SOAP + MySQL               ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ SECTION 1 — ENVIRONMENT REQUIREMENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ ✅ Java JDK        : 11, 17, or 21 (recommended: JDK 17)
+    Download        : https://adoptium.net/
+    Verify          : java -version  →  should show 17.x or higher
+
+ ✅ MySQL Server    : 8.0 or higher
+    Download        : https://dev.mysql.com/downloads/mysql/
+    Default port    : 3306
+
+ ✅ VS Code         : Latest version
+    Extension       : "Extension Pack for Java" by Microsoft
+    Install at      : https://code.visualstudio.com/
+
+ ✅ MySQL Connector/J (JDBC driver JAR):
+    Download        : https://dev.mysql.com/downloads/connector/j/
+    Version         : 8.0.x or 8.3.x
+    File to get     : mysql-connector-j-8.x.x.jar
+
+ ✅ Browser         : Chrome, Firefox, or Edge (for frontend)
+
+ ✅ (OPTIONAL) SoapUI: https://www.soapui.org/downloads/soapui/
+ ✅ (OPTIONAL) Postman: https://www.postman.com/
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ SECTION 2 — PROJECT FOLDER STRUCTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ScholarshipPortal/
+├── backend/
+│   ├── build.bat                          ← Windows build & run script
+│   ├── build.sh                           ← Linux/Mac build & run script
+│   ├── lib/                               ← PUT JAR FILES HERE
+│   │   └── mysql-connector-j-8.x.x.jar   ← Download this!
+│   ├── out/
+│   │   └── classes/                       ← Compiled .class files go here
+│   └── src/main/java/com/scholarship/
+│       ├── db/
+│       │   └── DatabaseUtil.java          ← JDBC connection
+│       ├── model/
+│       │   ├── Student.java
+│       │   ├── Scholarship.java
+│       │   └── EligibilityResponse.java
+│       ├── service/
+│       │   ├── ScholarshipService.java    ← SEI (interface)
+│       │   ├── ScholarshipServiceImpl.java← SIB (SOAP logic)
+│       │   ├── ServicePublisher.java      ← Start the server here
+│       │   ├── UDDIPublisher.java         ← UDDI registration
+│       │   └── ScholarshipClient.java     ← Java test client
+│       └── util/
+│           └── AppLogger.java             ← Logging utility
+├── frontend/
+│   └── index.html                         ← Open this in browser
+├── database/
+│   └── schema.sql                         ← Run this in MySQL first
+└── docs/
+    ├── soap_request_sample.xml
+    ├── soap_response_sample.xml
+    └── whattodo.txt                       ← This file
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ SECTION 3 — STEP-BY-STEP SETUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+╔─────────────────────────────────────────────────────────────────────╗
+║  STEP 1: Set up MySQL Database                                      ║
+╚─────────────────────────────────────────────────────────────────────╝
+
+  a) Start MySQL server.
+     Windows : Open "MySQL 8.0 Command Line Client" or MySQL Workbench
+     Linux   : sudo systemctl start mysql
+     Mac     : brew services start mysql
+
+  b) Log in to MySQL:
+     mysql -u root -p
+
+  c) Run the schema file:
+     SOURCE C:/path/to/ScholarshipPortal/database/schema.sql;
+     (Replace path with your actual path)
+
+     OR copy-paste the entire contents of schema.sql into the MySQL shell.
+
+  d) Verify:
+     USE scholarship_db;
+     SHOW TABLES;
+     SELECT * FROM scholarships;
+     ← You should see 10 scholarship schemes listed.
+
+  e) Update database password in code:
+     Open: backend/src/main/java/com/scholarship/db/DatabaseUtil.java
+     Change line:
+       private static final String DB_PASS = "password";
+     to your actual MySQL root password.
+
+     Also change DB_USER if you use a different MySQL user.
+
+
+╔─────────────────────────────────────────────────────────────────────╗
+║  STEP 2: Download the MySQL JDBC Driver                             ║
+╚─────────────────────────────────────────────────────────────────────╝
+
+  a) Go to: https://dev.mysql.com/downloads/connector/j/
+  b) Choose: Platform Independent → ZIP
+  c) Extract → find: mysql-connector-j-8.x.x.jar
+  d) Copy that JAR into:
+       ScholarshipPortal/backend/lib/
+
+  Your lib/ folder should now contain:
+    backend/lib/mysql-connector-j-8.x.x.jar
+
+
+╔─────────────────────────────────────────────────────────────────────╗
+║  STEP 3: Open in VS Code                                            ║
+╚─────────────────────────────────────────────────────────────────────╝
+
+  a) Install VS Code: https://code.visualstudio.com/
+  b) Install extension: "Extension Pack for Java" (by Microsoft)
+     (Includes Java Language Support, Maven, Debugger for Java)
+  c) File → Open Folder → select ScholarshipPortal/backend/
+  d) VS Code will detect Java source files automatically.
+
+
+╔─────────────────────────────────────────────────────────────────────╗
+║  STEP 4: Compile the Backend                                        ║
+╚─────────────────────────────────────────────────────────────────────╝
+
+  OPTION A — Using the provided build script:
+
+    Windows:
+      Open Command Prompt in the backend/ folder, then run:
+        build.bat
+
+    Linux / Mac:
+        chmod +x build.sh
+        ./build.sh
+
+  OPTION B — Manual compilation (if scripts don't work):
+
+    cd ScholarshipPortal/backend
+
+    Windows:
+      javac -cp "lib\*" -d out\classes ^
+        src\main\java\com\scholarship\util\AppLogger.java ^
+        src\main\java\com\scholarship\db\DatabaseUtil.java ^
+        src\main\java\com\scholarship\model\Student.java ^
+        src\main\java\com\scholarship\model\Scholarship.java ^
+        src\main\java\com\scholarship\model\EligibilityResponse.java ^
+        src\main\java\com\scholarship\service\ScholarshipService.java ^
+        src\main\java\com\scholarship\service\ScholarshipServiceImpl.java ^
+        src\main\java\com\scholarship\service\UDDIPublisher.java ^
+        src\main\java\com\scholarship\service\ServicePublisher.java ^
+        src\main\java\com\scholarship\service\ScholarshipClient.java
+
+    Linux / Mac:
+      javac -cp "lib/*" -d out/classes \
+        src/main/java/com/scholarship/util/AppLogger.java \
+        src/main/java/com/scholarship/db/DatabaseUtil.java \
+        src/main/java/com/scholarship/model/Student.java \
+        src/main/java/com/scholarship/model/Scholarship.java \
+        src/main/java/com/scholarship/model/EligibilityResponse.java \
+        src/main/java/com/scholarship/service/ScholarshipService.java \
+        src/main/java/com/scholarship/service/ScholarshipServiceImpl.java \
+        src/main/java/com/scholarship/service/UDDIPublisher.java \
+        src/main/java/com/scholarship/service/ServicePublisher.java \
+        src/main/java/com/scholarship/service/ScholarshipClient.java
+
+  OPTION C — VS Code Run button:
+    Open ServicePublisher.java → click ▶ Run (top right) or press F5.
+    VS Code auto-detects and compiles.
+
+  ✅ After successful compile: out/classes/ folder will be populated.
+
+
+╔─────────────────────────────────────────────────────────────────────╗
+║  STEP 5: Run the SOAP Backend Server                                ║
+╚─────────────────────────────────────────────────────────────────────╝
+
+  Windows:
+    java -cp "out\classes;lib\*" com.scholarship.service.ServicePublisher
+
+  Linux / Mac:
+    java -cp "out/classes:lib/*" com.scholarship.service.ServicePublisher
+
+  ✅ Expected console output:
+    ════════════════════════════════════════════════
+      Scholarship Eligibility Portal — SOAP Server
+    ════════════════════════════════════════════════
+    ✅ Service published successfully!
+    🔗 Service  : http://localhost:8888/scholarship/service
+    📄 WSDL     : http://localhost:8888/scholarship/service?wsdl
+    ⏳ Press Ctrl+C to stop the server.
+
+  ✅ Verify WSDL in browser:
+    Open: http://localhost:8888/scholarship/service?wsdl
+    You should see an XML document starting with <definitions ...>
+
+  NOTE: Keep this terminal window open while testing.
+        The server runs until you press Ctrl+C.
+
+
+╔─────────────────────────────────────────────────────────────────────╗
+║  STEP 6: Open the Frontend                                          ║
+╚─────────────────────────────────────────────────────────────────────╝
+
+  Simply open the file in your browser:
+    ScholarshipPortal/frontend/index.html
+
+  Double-click it, OR drag it into Chrome/Firefox.
+
+  ✅ You should see the "Scholarship Eligibility Portal" UI with:
+    - Student Details form (left)
+    - Eligibility Results panel (right)
+    - SOAP XML Inspector (bottom)
+
+  ✅ CORS Note:
+    If the browser blocks the SOAP call (CORS error), the frontend
+    automatically switches to DEMO MODE, which simulates the response
+    locally. For production use with real backend:
+      - Add CORS headers to your JAX-WS endpoint, OR
+      - Use a proxy server (nginx), OR
+      - Open frontend via a local web server (not file://)
+
+
+╔─────────────────────────────────────────────────────────────────────╗
+║  STEP 7: Test the Java Client (Optional)                            ║
+╚─────────────────────────────────────────────────────────────────────╝
+
+  While the server is running, open a NEW terminal and run:
+
+  Windows:
+    java -cp "out\classes;lib\*" com.scholarship.service.ScholarshipClient
+
+  Linux / Mac:
+    java -cp "out/classes:lib/*" com.scholarship.service.ScholarshipClient
+
+  ✅ You should see results for 5 test students printed to console.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ SECTION 4 — TESTING WITH SOAPUI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Download & install SoapUI: https://www.soapui.org/downloads/soapui/
+
+  2. Open SoapUI → File → New SOAP Project
+       Project Name : ScholarshipPortal
+       Initial WSDL : http://localhost:8888/scholarship/service?wsdl
+       ☑ Create requests for all operations
+       → Click OK
+
+  3. In the left panel:
+       ScholarshipEligibilityService
+         └── ScholarshipServicePort
+               └── checkEligibility
+                     └── Request 1
+
+  4. Double-click "Request 1" → edit the XML:
+     Replace ? placeholders with real values:
+       <name>Rahul Kumar</name>
+       <marks>88.5</marks>
+       <annualIncome>120000</annualIncome>
+       <category>SC</category>
+
+  5. Click ▶ Send (green arrow)
+
+  ✅ You should see the SOAP response on the right panel
+     with matched scholarship schemes.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ SECTION 5 — TESTING WITH POSTMAN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Open Postman → New Request
+
+  2. Method : POST
+     URL    : http://localhost:8888/scholarship/service
+
+  3. Headers tab → Add:
+       Content-Type : text/xml;charset=UTF-8
+       SOAPAction   : "http://scholarship.com/service/checkEligibility"
+
+  4. Body tab → select "raw" → select "XML" from dropdown
+     Paste this:
+
+     <?xml version="1.0" encoding="UTF-8"?>
+     <soapenv:Envelope
+       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+       xmlns:tns="http://scholarship.com/service">
+       <soapenv:Header/>
+       <soapenv:Body>
+         <tns:checkEligibility>
+           <name>Rahul Kumar</name>
+           <marks>88.5</marks>
+           <annualIncome>120000</annualIncome>
+           <category>SC</category>
+         </tns:checkEligibility>
+       </soapenv:Body>
+     </soapenv:Envelope>
+
+  5. Click Send
+
+  ✅ Response body will contain the SOAP XML with matched scholarships.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ SECTION 6 — COMMON ERRORS AND FIXES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❌ ERROR 1: Port 8888 already in use
+   Message : "java.net.BindException: Address already in use"
+   ─────────────────────────────────────────────────────────
+   FIX:
+   a) Find the process using port 8888:
+      Windows: netstat -ano | findstr :8888
+      Linux  : lsof -i :8888
+   b) Kill it:
+      Windows: taskkill /PID <PID_NUMBER> /F
+      Linux  : kill -9 <PID_NUMBER>
+   c) OR change the port in ServicePublisher.java:
+      Change: "http://localhost:8888/..."
+      To    : "http://localhost:9090/..."
+      Then recompile and restart.
+
+❌ ERROR 2: MySQL JDBC Driver not found
+   Message : "ClassNotFoundException: com.mysql.cj.jdbc.Driver"
+   ─────────────────────────────────────────────────────────
+   FIX:
+   a) Confirm mysql-connector-j-*.jar is inside backend/lib/
+   b) Make sure the classpath includes lib/*:
+      java -cp "out/classes:lib/*" com.scholarship.service.ServicePublisher
+   c) Download the connector from:
+      https://dev.mysql.com/downloads/connector/j/
+
+❌ ERROR 3: MySQL connection refused
+   Message : "Communications link failure" or "Connection refused"
+   ─────────────────────────────────────────────────────────
+   FIX:
+   a) Make sure MySQL server is running:
+      Windows: Open Services → Start "MySQL80"
+      Linux  : sudo systemctl start mysql
+   b) Verify your password in DatabaseUtil.java:
+      DB_PASS = "your_actual_mysql_password"
+   c) Test manually: mysql -u root -p
+   d) Check MySQL is on port 3306: mysql --port=3306
+
+❌ ERROR 4: WSDL not accessible in browser
+   URL    : http://localhost:8888/scholarship/service?wsdl → blank/error
+   ─────────────────────────────────────────────────────────
+   FIX:
+   a) Make sure ServicePublisher.java is still running (don't close terminal)
+   b) Check no firewall is blocking port 8888
+   c) Try: curl http://localhost:8888/scholarship/service?wsdl
+
+❌ ERROR 5: SOAP request fails with HTTP 405 Method Not Allowed
+   ─────────────────────────────────────────────────────────
+   FIX:
+   a) Ensure method is POST (not GET)
+   b) Add the SOAPAction header:
+      SOAPAction: "http://scholarship.com/service/checkEligibility"
+   c) Content-Type must be: text/xml;charset=UTF-8
+
+❌ ERROR 6: javac: command not found
+   ─────────────────────────────────────────────────────────
+   FIX:
+   a) Install JDK (not just JRE): https://adoptium.net/
+   b) Add to PATH:
+      Windows:
+        Control Panel → System → Advanced → Environment Variables
+        Edit PATH → Add: C:\Program Files\Java\jdk-17\bin
+      Linux/Mac:
+        export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+        export PATH=$JAVA_HOME/bin:$PATH
+
+❌ ERROR 7: CORS error in browser (frontend can't reach backend)
+   Message : "Access to fetch blocked by CORS policy"
+   ─────────────────────────────────────────────────────────
+   FIX (Option A — Quick):
+   The frontend automatically falls back to DEMO MODE.
+   Results are simulated locally. Good for demos without backend.
+
+   FIX (Option B — Proper):
+   Add a CORS filter to your JAX-WS service:
+   Create a javax.servlet.Filter that adds:
+     response.addHeader("Access-Control-Allow-Origin", "*");
+     response.addHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+     response.addHeader("Access-Control-Allow-Headers", "Content-Type, SOAPAction");
+
+   FIX (Option C — Simple dev workaround):
+   Use VS Code Live Server extension to serve frontend at localhost:5500
+   Then it's same-origin with the SOAP backend.
+
+❌ ERROR 8: "package com.scholarship.model does not exist" during compile
+   ─────────────────────────────────────────────────────────
+   FIX:
+   Compile ALL files in the correct order (model before service).
+   Use the build script (build.bat or build.sh) which handles order.
+   OR compile all files together in one javac command.
+
+❌ ERROR 9: schema.sql fails to import
+   Message : "Table 'scholarship_db.students' doesn't exist"
+   ─────────────────────────────────────────────────────────
+   FIX:
+   a) Make sure you ran: CREATE DATABASE scholarship_db; first
+   b) Run: USE scholarship_db; before the CREATE TABLE statements
+   c) Or just run: SOURCE /full/path/to/schema.sql;
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ SECTION 7 — UDDI EXPLANATION (For Project Report/Viva)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ UDDI (Universal Description, Discovery, and Integration):
+ ─────────────────────────────────────────────────────────
+ UDDI is a platform-independent XML-based registry that enables
+ businesses to publish and discover web services. Think of it as
+ a "Yellow Pages" for web services.
+
+ Three tiers of UDDI:
+   White Pages : Business name, contact, identifiers
+   Yellow Pages: Business categorized by industry/service
+   Green Pages : Technical details (WSDL URL, access points)
+
+ This project includes:
+   UDDIPublisher.java → Demonstrates service registration metadata
+   Method: publishService() → registers service to registry
+   Method: discoverService() → looks up service WSDL URL
+
+ For full jUDDI integration (advanced):
+   1. Download jUDDI: https://juddi.apache.org/
+   2. Deploy juddi.war on Tomcat
+   3. Add juddi-client-*.jar to lib/
+   4. Uncomment the real jUDDI API code in UDDIPublisher.java
+   5. Configure uddi.xml with your jUDDI server details
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ SECTION 8 — SCHOLARSHIP RULES REFERENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ Scheme Code    | Min Marks | Max Income  | Category      | Amount/yr
+ ───────────────┼───────────┼─────────────┼───────────────┼──────────
+ PM-SC-001      | 50%       | ₹2,50,000   | SC            | ₹15,000
+ PM-ST-001      | 50%       | ₹2,50,000   | ST            | ₹15,000
+ PM-OBC-001     | 55%       | ₹1,50,000   | OBC           | ₹10,000
+ NMS-GEN-001    | 85%       | ₹6,00,000   | ALL           | ₹20,000
+ PMSS-001       | 75%       | ₹5,00,000   | ALL           | ₹25,000
+ DA-PMS-001     | 60%       | ₹3,00,000   | OBC           | ₹12,000
+ CSS-001        | 80%       | ₹4,50,000   | ALL           | ₹12,000
+ NSM-001        | 50%       | ₹2,00,000   | OBC,SC,ST     | ₹10,000
+ TCES-SC-001    | 70%       | ₹6,00,000   | SC            | ₹75,000
+ BHM-001        | 65%       | ₹2,00,000   | OBC,SC,ST     | ₹10,000
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ SECTION 9 — VIVA QUESTION QUICK ANSWERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ Q: What is JAX-WS?
+ A: Java API for XML Web Services. It provides APIs to create SOAP-based
+    web services in Java using annotations like @WebService, @WebMethod.
+
+ Q: What is a WSDL?
+ A: Web Services Description Language. An XML document that describes
+    a web service: operations, input/output message types, binding,
+    and endpoint address.
+
+ Q: What is SOAP?
+ A: Simple Object Access Protocol. A protocol for exchanging structured
+    XML messages over HTTP between applications.
+
+ Q: What is UDDI?
+ A: Universal Description, Discovery and Integration. A registry that
+    allows businesses to publish and discover web services.
+
+ Q: What is the difference between SEI and SIB?
+ A: SEI (Service Endpoint Interface) is the Java interface annotated
+    with @WebService. SIB (Service Implementation Bean) is the class
+    that implements the SEI with actual business logic.
+
+ Q: How does the frontend call the SOAP service?
+ A: Using JavaScript's fetch() API with method POST, Content-Type
+    text/xml, and a raw SOAP XML envelope in the request body.
+    The response XML is parsed using DOMParser.
+
+ Q: Why MySQL FIND_IN_SET()?
+ A: The scholarships.eligible_categories column uses MySQL's SET type,
+    which stores comma-separated values. FIND_IN_SET() correctly checks
+    membership in SET columns.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ SECTION 10 — QUICK START CHECKLIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ □ 1. Java 17 installed and in PATH
+ □ 2. MySQL 8 installed and running
+ □ 3. schema.sql imported → 10 scholarship rows visible
+ □ 4. mysql-connector-j-*.jar copied to backend/lib/
+ □ 5. DatabaseUtil.java password updated to your MySQL password
+ □ 6. Compiled: javac ... (or used build script)
+ □ 7. Server running: java ... ServicePublisher
+ □ 8. WSDL visible at http://localhost:8888/scholarship/service?wsdl
+ □ 9. frontend/index.html opened in browser
+ □ 10. Filled form and clicked "Check Eligibility via SOAP"
+ □ 11. Results appear with scholarship cards
+ □ 12. SOAP XML inspector shows request/response envelopes
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ SECTION 11 — ARCHITECTURE DIAGRAM (ASCII)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌──────────────────────────────────────────────────────────────┐
+  │                     SERVICE CONSUMER                          │
+  │                 (Browser: index.html / JS)                    │
+  │                                                              │
+  │  1. Student fills form (name, marks, income, category)       │
+  │  2. JS builds SOAP XML envelope                              │
+  │  3. fetch() POST to SOAP endpoint                            │
+  │  4. Parse XML response → display scholarship cards           │
+  └────────────────────┬─────────────────────────────────────────┘
+                       │  HTTP POST (SOAP XML over HTTP)
+                       ▼
+  ┌──────────────────────────────────────────────────────────────┐
+  │                 SERVICE PROVIDER (JAX-WS)                     │
+  │          http://localhost:8888/scholarship/service           │
+  │                                                              │
+  │  ① Receive SOAP envelope                                     │
+  │  ② Unmarshal XML → Java objects                             │
+  │  ③ Validate input (marks, income, category)                 │
+  │  ④ Query MySQL scholarships table                            │
+  │  ⑤ Filter by eligibility rules                              │
+  │  ⑥ Marshal results → SOAP XML response                      │
+  └────────────────────┬─────────────────────────────────────────┘
+                       │  JDBC
+                       ▼
+  ┌──────────────────────────────────────────────────────────────┐
+  │                   MySQL Database                              │
+  │                  (scholarship_db)                            │
+  │                                                              │
+  │   students table     scholarships table   eligibility_results│
+  │  ─────────────────  ──────────────────── ───────────────────│
+  │   id, full_name      scheme_code, name    student_id        │
+  │   marks, income      min_marks            scholarship_id    │
+  │   category           max_income                             │
+  │                      eligible_categories                    │
+  │                      amount_per_year                        │
+  └──────────────────────────────────────────────────────────────┘
+
+  UDDI Registry (UDDIPublisher.java):
+  ────────────────────────────────────
+  • publishService() → Registers WSDL URL + metadata in registry
+  • discoverService() → Client queries registry to find WSDL URL
+  • (Simulated in this project; use real jUDDI for production)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ Good luck with your MCA Final Year Project! 🎓
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

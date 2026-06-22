@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ═══════════════════════════════════════════════════════════════
+   SAMPLE SOAP RESPONSE
+   Operation: checkEligibilityResponse
+   Scenario : SC student, marks=88.5, income=120000
+   Result   : 4 scholarships matched
+  ═══════════════════════════════════════════════════════════════
+-->
+<soapenv:Envelope
+  xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:tns="http://scholarship.com/service">
+
+  <soapenv:Body>
+    <tns:checkEligibilityResponse>
+      <return>
+
+        <eligible>true</eligible>
+        <message>Congratulations! You are eligible for 4 scholarship(s).</message>
+
+        <!-- Scholarship 1 — highest amount first -->
+        <scholarships>
+          <schemeCode>TCES-SC-001</schemeCode>
+          <name>Top Class Education Scheme for SC</name>
+          <description>For SC students studying in top institutions (IITs, NITs, IIMs, etc.).</description>
+          <amountPerYear>75000.0</amountPerYear>
+        </scholarships>
+
+        <!-- Scholarship 2 -->
+        <scholarships>
+          <schemeCode>NMS-GEN-001</schemeCode>
+          <name>National Merit Scholarship</name>
+          <description>Merit-based scholarship open to all categories for outstanding academic performance.</description>
+          <amountPerYear>20000.0</amountPerYear>
+        </scholarships>
+
+        <!-- Scholarship 3 -->
+        <scholarships>
+          <schemeCode>PM-SC-001</schemeCode>
+          <name>Post-Matric Scholarship for SC Students</name>
+          <description>Central government scholarship for Scheduled Caste students pursuing post-matriculation education.</description>
+          <amountPerYear>15000.0</amountPerYear>
+        </scholarships>
+
+        <!-- Scholarship 4 -->
+        <scholarships>
+          <schemeCode>CSS-001</schemeCode>
+          <name>Central Sector Scheme of Scholarships</name>
+          <description>For college and university students based on merit and means criteria.</description>
+          <amountPerYear>12000.0</amountPerYear>
+        </scholarships>
+
+      </return>
+    </tns:checkEligibilityResponse>
+  </soapenv:Body>
+
+</soapenv:Envelope>
+
+<!-- ══════════════════════════════════════════════════════════
+     SAMPLE RESPONSE: No scholarships (ineligible)
+══════════════════════════════════════════════════════════ -->
+<!--
+<soapenv:Envelope
+  xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:tns="http://scholarship.com/service">
+  <soapenv:Body>
+    <tns:checkEligibilityResponse>
+      <return>
+        <eligible>false</eligible>
+        <message>No scholarship schemes matched your profile. Check criteria and reapply when eligible.</message>
+      </return>
+    </tns:checkEligibilityResponse>
+  </soapenv:Body>
+</soapenv:Envelope>
+-->
+
+<!-- ══════════════════════════════════════════════════════════
+     SAMPLE RESPONSE: Validation error
+══════════════════════════════════════════════════════════ -->
+<!--
+<soapenv:Envelope
+  xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:tns="http://scholarship.com/service">
+  <soapenv:Body>
+    <tns:checkEligibilityResponse>
+      <return>
+        <eligible>false</eligible>
+        <message>❌ Invalid category 'XYZ'. Must be one of: GEN, OBC, SC, ST.</message>
+      </return>
+    </tns:checkEligibilityResponse>
+  </soapenv:Body>
+</soapenv:Envelope>
+-->

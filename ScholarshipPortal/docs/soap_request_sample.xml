@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ═══════════════════════════════════════════════════════════════
+   SAMPLE SOAP REQUEST
+   Scholarship Eligibility Portal — JAX-WS SOAP Service
+   Operation: checkEligibility
+   Endpoint  : http://localhost:8888/scholarship/service
+   SOAPAction: "http://scholarship.com/service/checkEligibility"
+  ═══════════════════════════════════════════════════════════════
+
+  HOW TO USE IN POSTMAN:
+  ─────────────────────
+  1. Method  : POST
+  2. URL     : http://localhost:8888/scholarship/service
+  3. Headers :
+       Content-Type : text/xml;charset=UTF-8
+       SOAPAction   : "http://scholarship.com/service/checkEligibility"
+  4. Body (raw / XML): paste the envelope below
+
+  HOW TO USE IN SOAPUI:
+  ─────────────────────
+  1. New SOAP Project
+  2. WSDL: http://localhost:8888/scholarship/service?wsdl
+  3. Operation: checkEligibility
+  4. Paste / edit values below and click Send
+-->
+
+<!-- ── Test Case 1: SC student with high marks, low income ── -->
+<soapenv:Envelope
+  xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:tns="http://scholarship.com/service">
+
+  <soapenv:Header/>
+
+  <soapenv:Body>
+    <tns:checkEligibility>
+      <name>Rahul Kumar</name>
+      <marks>88.5</marks>
+      <annualIncome>120000</annualIncome>
+      <category>SC</category>
+    </tns:checkEligibility>
+  </soapenv:Body>
+
+</soapenv:Envelope>
+
+<!-- ══════════════════════════════════════════════════════════
+     ADDITIONAL TEST CASES (use one at a time)
+══════════════════════════════════════════════════════════ -->
+
+<!--
+  ── Test Case 2: General category with very high marks ──
+  Expected: National Merit Scholarship, CSS
+
+<soapenv:Envelope
+  xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:tns="http://scholarship.com/service">
+  <soapenv:Header/>
+  <soapenv:Body>
+    <tns:checkEligibility>
+      <name>Priya Sharma</name>
+      <marks>92.0</marks>
+      <annualIncome>550000</annualIncome>
+      <category>GEN</category>
+    </tns:checkEligibility>
+  </soapenv:Body>
+</soapenv:Envelope>
+-->
+
+<!--
+  ── Test Case 3: OBC student, moderate marks ──
+  Expected: PM-OBC, Dr. Ambedkar PMS
+
+<soapenv:Envelope
+  xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:tns="http://scholarship.com/service">
+  <soapenv:Header/>
+  <soapenv:Body>
+    <tns:checkEligibility>
+      <name>Amit Patel</name>
+      <marks>67.5</marks>
+      <annualIncome>180000</annualIncome>
+      <category>OBC</category>
+    </tns:checkEligibility>
+  </soapenv:Body>
+</soapenv:Envelope>
+-->
+
+<!--
+  ── Test Case 4: Invalid input (expect validation error) ──
+
+<soapenv:Envelope
+  xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:tns="http://scholarship.com/service">
+  <soapenv:Header/>
+  <soapenv:Body>
+    <tns:checkEligibility>
+      <name></name>
+      <marks>-10</marks>
+      <annualIncome>-5000</annualIncome>
+      <category>XYZ</category>
+    </tns:checkEligibility>
+  </soapenv:Body>
+</soapenv:Envelope>
+-->

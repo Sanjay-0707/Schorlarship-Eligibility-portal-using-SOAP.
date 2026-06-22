@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  web.xml — Deployment Descriptor
+  Scholarship Eligibility Portal — WAR configuration for Apache Tomcat
+
+  NOTE: For standalone mode, use ServicePublisher.java instead.
+        This web.xml is only needed when deploying as a WAR to Tomcat.
+-->
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+         http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+
+    <display-name>Scholarship Eligibility Portal</display-name>
+    <description>SOAP-based web service for scholarship eligibility checking</description>
+
+    <!-- JAX-WS Servlet Listener (for Tomcat + metro/WSIT) -->
+    <listener>
+        <listener-class>
+            com.sun.xml.ws.transport.http.servlet.WSServletContextListener
+        </listener-class>
+    </listener>
+
+    <!-- JAX-WS Servlet -->
+    <servlet>
+        <servlet-name>ScholarshipService</servlet-name>
+        <servlet-class>
+            com.sun.xml.ws.transport.http.servlet.WSServlet
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>ScholarshipService</servlet-name>
+        <url-pattern>/service</url-pattern>
+    </servlet-mapping>
+
+    <!-- Welcome page -->
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+
+</web-app>

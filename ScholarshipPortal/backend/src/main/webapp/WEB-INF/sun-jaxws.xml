@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  sun-jaxws.xml
+  ─────────────────────────────────────────────────────────────
+  Metro/JAX-WS endpoint configuration for Tomcat deployment.
+  Maps the servlet URL pattern to the service implementation.
+
+  Only needed when deploying as a WAR.
+  ─────────────────────────────────────────────────────────────
+-->
+<endpoints xmlns="http://java.sun.com/xml/ns/jax-ws/ri/runtime"
+           version="2.0">
+
+    <endpoint name="ScholarshipService"
+              implementation="com.scholarship.service.ScholarshipServiceImpl"
+              url-pattern="/service"
+              wsdl="WEB-INF/wsdl/ScholarshipService.wsdl"/>
+
+</endpoints>

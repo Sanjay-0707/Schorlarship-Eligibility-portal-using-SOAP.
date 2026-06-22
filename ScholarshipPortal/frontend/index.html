@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scholarship Eligibility Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    /* ── CSS Variables ──────────────────────────────── */
+    :root {
+      --navy:       #0d2137;
+      --navy-mid:   #153352;
+      --gold:       #c89b3c;
+      --gold-light: #e8c46a;
+      --cream:      #fdf9f3;
+      --cream-dark: #f0e9dc;
+      --white:      #ffffff;
+      --text:       #1a2e42;
+      --text-muted: #5a7186;
+      --success:    #1a6b3c;
+      --success-bg: #e8f5ee;
+      --error:      #8b1a1a;
+      --error-bg:   #fceaea;
+      --radius:     12px;
+      --shadow:     0 4px 24px rgba(13,33,55,0.10);
+      --shadow-lg:  0 12px 48px rgba(13,33,55,0.18);
+    }
+
+    /* ── Reset ──────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ─────────────────────────────────────── */
+    header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      color: var(--white);
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      background: rgba(200,155,60,0.08);
+      pointer-events: none;
+    }
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: -40px; left: 10%;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      background: rgba(200,155,60,0.05);
+      pointer-events: none;
+    }
+
+    .header-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 36px 32px 30px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .emblem {
+      width: 68px; height: 68px;
+      background: linear-gradient(145deg, var(--gold), var(--gold-light));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px;
+      box-shadow: 0 4px 16px rgba(200,155,60,0.35);
+      flex-shrink: 0;
+    }
+
+    .header-text .ministry {
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    .header-text h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(20px, 3.5vw, 28px);
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--white);
+    }
+    .header-text .subtitle {
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+      margin-top: 6px;
+      font-weight: 300;
+    }
+
+    .header-badge {
+      margin-left: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+    .badge-pill {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(200,155,60,0.4);
+      color: var(--gold-light);
+      background: rgba(200,155,60,0.08);
+    }
+
+    /* ── Progress bar ──────────────────────────────── */
+    .progress-bar {
+      height: 3px;
+      background: rgba(200,155,60,0.15);
+      position: relative;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    /* ── Main Layout ────────────────────────────────── */
+    main {
+      flex: 1;
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    @media (max-width: 700px) {
+      main { grid-template-columns: 1fr; padding: 24px 16px 40px; }
+    }
+
+    /* ── Section Card ────────────────────────────────── */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card:nth-child(2) { animation-delay: 0.1s; }
+
+    .card-header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .card-header-icon {
+      width: 36px; height: 36px;
+      background: rgba(200,155,60,0.2);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .card-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      color: var(--white);
+      font-weight: 600;
+    }
+    .card-header p {
+      font-size: 12px;
+      color: rgba(255,255,255,0.55);
+      margin-top: 2px;
+    }
+
+    .card-body { padding: 24px; }
+
+    /* ── Form Elements ────────────────────────────────── */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 7px;
+    }
+
+    label span.req { color: var(--gold); margin-left: 2px; }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--cream-dark);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--cream);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(200,155,60,0.12);
+      background: var(--white);
+    }
+
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+      font-size: 13px;
+    }
+
+    .input-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+
+    /* Range slider */
+    .slider-group { position: relative; }
+    .slider-value {
+      position: absolute;
+      right: 0; top: 0;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--navy);
+      background: var(--cream-dark);
+      padding: 2px 10px;
+      border-radius: 20px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      margin-top: 24px;
+      accent-color: var(--gold);
+    }
+
+    /* Submit button */
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(13,33,55,0.25);
+    }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-gold-accent {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+    }
+
+    /* ── Results Panel ──────────────────────────────── */
+    .results-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-muted);
+      gap: 12px;
+      min-height: 200px;
+    }
+    .results-placeholder .icon { font-size: 40px; opacity: 0.4; }
+    .results-placeholder p { font-size: 14px; max-width: 200px; line-height: 1.6; }
+
+    /* Loading */
+    .loader {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      gap: 16px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--cream-dark);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Result cards */
+    .result-status {
+      padding: 16px 18px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .result-status.success {
+      background: var(--success-bg);
+      color: var(--success);
+      border-left: 4px solid var(--success);
+    }
+    .result-status.error {
+      background: var(--error-bg);
+      color: var(--error);
+      border-left: 4px solid var(--error);
+    }
+    .result-status .status-icon { font-size: 20px; }
+
+    .scholarship-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .scholarship-card {
+      border: 1.5px solid var(--cream-dark);
+      border-radius: 10px;
+      padding: 16px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      animation: fadeUp 0.35s ease both;
+      background: var(--cream);
+    }
+    .scholarship-card:hover {
+      border-color: var(--gold);
+      box-shadow: 0 4px 16px rgba(200,155,60,0.12);
+    }
+
+    .sc-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .sc-name {
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--navy);
+      line-height: 1.35;
+    }
+    .sc-amount {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--success);
+      background: var(--success-bg);
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .sc-code {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .sc-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ── SOAP Debug Panel ──────────────────────────── */
+    .soap-section {
+      grid-column: 1 / -1;
+      animation: fadeUp 0.5s ease 0.2s both;
+    }
+
+    .soap-tabs {
+      display: flex;
+      border-bottom: 2px solid var(--cream-dark);
+      margin-bottom: 0;
+    }
+    .soap-tab {
+      padding: 10px 18px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.2s;
+    }
+    .soap-tab.active {
+      color: var(--navy);
+      border-bottom-color: var(--gold);
+    }
+
+    .soap-pane { display: none; padding: 16px; }
+    .soap-pane.active { display: block; }
+
+    pre {
+      background: #f5f3f0;
+      border: 1px solid var(--cream-dark);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'Courier New', monospace;
+      font-size: 11.5px;
+      line-height: 1.7;
+      overflow-x: auto;
+      color: #2d3748;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .xml-tag    { color: #1a5276; font-weight: 600; }
+    .xml-attr   { color: #7d3c98; }
+    .xml-val    { color: #1a6b3c; }
+    .xml-comm   { color: #888; font-style: italic; }
+
+    /* ── Info Banner ─────────────────────────────────── */
+    .info-banner {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, #e8f1f8, #f0e9dc);
+      border-radius: var(--radius);
+      padding: 18px 24px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      border: 1px solid var(--cream-dark);
+      animation: fadeUp 0.5s ease 0.3s both;
+    }
+    .info-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+    .info-content h3 {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+    .info-content ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .info-content li {
+      font-size: 12px;
+      color: var(--text-muted);
+      background: rgba(255,255,255,0.7);
+      border-radius: 6px;
+      padding: 4px 10px;
+      border: 1px solid var(--cream-dark);
+    }
+    .info-content li strong { color: var(--navy); }
+
+    /* ── Footer ─────────────────────────────────────── */
+    footer {
+      background: var(--navy);
+      color: rgba(255,255,255,0.45);
+      text-align: center;
+      padding: 18px;
+      font-size: 12px;
+    }
+    footer strong { color: rgba(255,255,255,0.7); }
+
+    /* ── Toast ─────────────────────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--navy);
+      color: var(--white);
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 999;
+      border-left: 3px solid var(--gold);
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+  </style>
+</head>
+
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════════════════ -->
+<header>
+  <div class="header-inner">
+    <div class="emblem">🎓</div>
+    <div class="header-text">
+      <div class="ministry">Government of India · Ministry of Education</div>
+      <h1>Scholarship Eligibility Portal</h1>
+      <div class="subtitle">Cross-references student data with government scholarship services via SOAP</div>
+    </div>
+    <div class="header-badge">
+      <div class="badge-pill">SOAP · JAX-WS</div>
+      <div class="badge-pill">XML · UDDI</div>
+    </div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════
+     MAIN
+══════════════════════════════════════════════════════ -->
+<main>
+
+  <!-- ── FORM CARD ── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon">📋</div>
+      <div>
+        <h2>Student Details</h2>
+        <p>Enter your academic & financial profile</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <form id="eligibilityForm" onsubmit="return false;">
+
+        <div class="form-group">
+          <label for="studentName">Full Name <span class="req">*</span></label>
+          <input type="text" id="studentName" placeholder="e.g. Rahul Kumar"
+                 autocomplete="off" required />
+        </div>
+
+        <div class="form-group">
+          <label for="marksInput">Percentage Marks <span class="req">*</span></label>
+          <div class="slider-group">
+            <span class="slider-value" id="marksDisplay">75%</span>
+            <input type="range" id="marksInput" min="0" max="100" step="0.5"
+                   value="75" oninput="updateSlider('marksInput','marksDisplay','%')" />
+          </div>
+          <div class="input-hint">Move slider to set your percentage marks</div>
+        </div>
+
+        <div class="form-group">
+          <label for="incomeInput">Annual Family Income (₹) <span class="req">*</span></label>
+          <input type="number" id="incomeInput" placeholder="e.g. 250000"
+                 min="0" step="1000" value="" required />
+          <div class="input-hint">Enter total annual household income in Indian Rupees</div>
+        </div>
+
+        <div class="form-group">
+          <label for="categoryInput">Reservation Category <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="categoryInput" required>
+              <option value="">— Select Category —</option>
+              <option value="GEN">General (GEN)</option>
+              <option value="OBC">Other Backward Class (OBC)</option>
+              <option value="SC">Scheduled Caste (SC)</option>
+              <option value="ST">Scheduled Tribe (ST)</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn-submit" id="checkBtn" onclick="checkEligibility()">
+          <span id="btnIcon">🔍</span>
+          <span id="btnText">Check Eligibility via SOAP</span>
+          <div class="btn-gold-accent"></div>
+        </button>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- ── RESULTS CARD ── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon">🏅</div>
+      <div>
+        <h2>Eligibility Results</h2>
+        <p>Scholarships matched to your profile</p>
+      </div>
+    </div>
+    <div class="card-body" id="resultsBody">
+
+      <div class="results-placeholder" id="placeholder">
+        <div class="icon">📄</div>
+        <p>Fill in your details and click <strong>Check Eligibility</strong> to discover matching scholarships.</p>
+      </div>
+
+      <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <span>Querying SOAP service…</span>
+      </div>
+
+      <div id="resultContent" style="display:none;"></div>
+
+    </div>
+  </div>
+
+  <!-- ── INFO BANNER ── -->
+  <div class="info-banner">
+    <div class="info-icon">ℹ️</div>
+    <div class="info-content">
+      <h3>Eligibility Criteria at a Glance</h3>
+      <ul>
+        <li><strong>PM-SC/ST:</strong> Marks ≥ 50% · Income ≤ ₹2.5L · SC/ST only</li>
+        <li><strong>PM-OBC:</strong> Marks ≥ 55% · Income ≤ ₹1.5L · OBC only</li>
+        <li><strong>National Merit:</strong> Marks ≥ 85% · Income ≤ ₹6L · All categories</li>
+        <li><strong>PMSS:</strong> Marks ≥ 75% · Income ≤ ₹5L · All categories</li>
+        <li><strong>CSS:</strong> Marks ≥ 80% · Income ≤ ₹4.5L · All categories</li>
+        <li><strong>Top Class SC:</strong> Marks ≥ 70% · Income ≤ ₹6L · SC only</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── SOAP DEBUG PANEL ── -->
+  <div class="card soap-section">
+    <div class="card-header">
+      <div class="card-header-icon">🔌</div>
+      <div>
+        <h2>SOAP XML Inspector</h2>
+        <p>View raw request/response envelopes</p>
+      </div>
+    </div>
+    <div>
+      <div class="soap-tabs">
+        <button class="soap-tab active" onclick="showTab('req')">📤 SOAP Request</button>
+        <button class="soap-tab" onclick="showTab('res')">📥 SOAP Response</button>
+        <button class="soap-tab" onclick="showTab('wsdl')">📄 WSDL Info</button>
+      </div>
+      <div class="soap-pane active" id="pane-req">
+        <pre id="soapRequest"><span class="xml-comm">&lt;!-- SOAP request will appear here after you click Check Eligibility --&gt;</span></pre>
+      </div>
+      <div class="soap-pane" id="pane-res">
+        <pre id="soapResponse"><span class="xml-comm">&lt;!-- SOAP response will appear here after the service responds --&gt;</span></pre>
+      </div>
+      <div class="soap-pane" id="pane-wsdl">
+        <pre><span class="xml-comm">&lt;!-- WSDL Endpoint Info --&gt;</span>
+<span class="xml-tag">&lt;wsdl:definitions</span>
+  <span class="xml-attr">name</span>=<span class="xml-val">"ScholarshipEligibilityService"</span>
+  <span class="xml-attr">targetNamespace</span>=<span class="xml-val">"http://scholarship.com/service"</span><span class="xml-tag">&gt;</span>
+
+  <span class="xml-tag">&lt;wsdl:service</span> <span class="xml-attr">name</span>=<span class="xml-val">"ScholarshipEligibilityService"</span><span class="xml-tag">&gt;</span>
+    <span class="xml-tag">&lt;wsdl:port</span> <span class="xml-attr">name</span>=<span class="xml-val">"ScholarshipServicePort"</span>
+           <span class="xml-attr">binding</span>=<span class="xml-val">"tns:ScholarshipServicePortBinding"</span><span class="xml-tag">&gt;</span>
+      <span class="xml-tag">&lt;soap:address</span>
+        <span class="xml-attr">location</span>=<span class="xml-val">"http://localhost:8888/scholarship/service"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;/wsdl:port&gt;</span>
+  <span class="xml-tag">&lt;/wsdl:service&gt;</span>
+
+  <span class="xml-tag">&lt;wsdl:portType</span> <span class="xml-attr">name</span>=<span class="xml-val">"ScholarshipService"</span><span class="xml-tag">&gt;</span>
+    <span class="xml-tag">&lt;wsdl:operation</span> <span class="xml-attr">name</span>=<span class="xml-val">"checkEligibility"</span><span class="xml-tag">&gt;</span>
+      <span class="xml-tag">&lt;wsdl:input</span>  <span class="xml-attr">message</span>=<span class="xml-val">"tns:checkEligibility"</span><span class="xml-tag">/&gt;</span>
+      <span class="xml-tag">&lt;wsdl:output</span> <span class="xml-attr">message</span>=<span class="xml-val">"tns:checkEligibilityResponse"</span><span class="xml-tag">/&gt;</span>
+    <span class="xml-tag">&lt;/wsdl:operation&gt;</span>
+  <span class="xml-tag">&lt;/wsdl:portType&gt;</span>
+
+<span class="xml-tag">&lt;/wsdl:definitions&gt;</span></pre>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ══════════════════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════════════════ -->
+<footer>
+  <strong>Scholarship Eligibility Portal</strong> &nbsp;·&nbsp;
+  MCA Final Year Project &nbsp;·&nbsp;
+  Built with JAX-WS · SOAP · XML · jUDDI · MySQL
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════════════════════
+     JAVASCRIPT — SOAP CLIENT
+══════════════════════════════════════════════════════ -->
+<script>
+  /* ─────────────────────────────────────────────────────
+     Configuration
+     Change SOAP_ENDPOINT to match your running backend.
+     The frontend calls the backend via a CORS-enabled proxy
+     or directly if CORS is configured.
+  ───────────────────────────────────────────────────── */
+  const SOAP_ENDPOINT = 'http://localhost:8888/scholarship/service';
+  const NAMESPACE     = 'http://scholarship.com/service';
+
+  /* ── Slider helper ─────────────────────────────────── */
+  function updateSlider(inputId, displayId, suffix) {
+    const val = document.getElementById(inputId).value;
+    document.getElementById(displayId).textContent = parseFloat(val).toFixed(1) + suffix;
+  }
+
+  /* ── Tab switching ─────────────────────────────────── */
+  function showTab(tab) {
+    document.querySelectorAll('.soap-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.soap-pane').forEach(p => p.classList.remove('active'));
+    const idx = ['req','res','wsdl'].indexOf(tab);
+    document.querySelectorAll('.soap-tab')[idx].classList.add('active');
+    document.getElementById('pane-' + tab).classList.add('active');
+  }
+
+  /* ── Toast ──────────────────────────────────────────── */
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  /* ── Build SOAP Envelope (XML string) ─────────────────
+     This is the raw XML sent to the JAX-WS service.
+  ───────────────────────────────────────────────────── */
+  function buildSoapEnvelope(name, marks, income, category) {
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope
+  xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:tns="${NAMESPACE}">
+  <soapenv:Header/>
+  <soapenv:Body>
+    <tns:checkEligibility>
+      <name>${escapeXml(name)}</name>
+      <marks>${marks}</marks>
+      <annualIncome>${income}</annualIncome>
+      <category>${escapeXml(category)}</category>
+    </tns:checkEligibility>
+  </soapenv:Body>
+</soapenv:Envelope>`;
+  }
+
+  function escapeXml(str) {
+    return String(str)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+
+  /* ── Parse SOAP XML Response ───────────────────────── */
+  function parseSoapResponse(xmlText) {
+    const parser = new DOMParser();
+    const doc    = parser.parseFromString(xmlText, 'text/xml');
+
+    // Check for SOAP fault
+    const fault = doc.querySelector('Fault');
+    if (fault) {
+      const faultMsg = doc.querySelector('faultstring')?.textContent || 'Unknown SOAP fault';
+      return { eligible: false, message: faultMsg, scholarships: [] };
+    }
+
+    const eligible     = doc.querySelector('eligible')?.textContent === 'true';
+    const message      = doc.querySelector('message')?.textContent  || '';
+    const scholarships = [];
+
+    doc.querySelectorAll('scholarships').forEach(s => {
+      scholarships.push({
+        schemeCode:    s.querySelector('schemeCode')?.textContent    || '',
+        name:          s.querySelector('name')?.textContent          || '',
+        description:   s.querySelector('description')?.textContent   || '',
+        amountPerYear: parseFloat(s.querySelector('amountPerYear')?.textContent || 0)
+      });
+    });
+
+    return { eligible, message, scholarships };
+  }
+
+  /* ── Progress animation ────────────────────────────── */
+  function setProgress(pct) {
+    document.getElementById('progressFill').style.width = pct + '%';
+  }
+
+  /* ── Main eligibility check ────────────────────────── */
+  async function checkEligibility() {
+
+    // Gather form values
+    const name     = document.getElementById('studentName').value.trim();
+    const marks    = parseFloat(document.getElementById('marksInput').value);
+    const income   = parseFloat(document.getElementById('incomeInput').value);
+    const category = document.getElementById('categoryInput').value;
+
+    // Client-side validation
+    if (!name)           { showToast('⚠ Please enter student name.'); return; }
+    if (isNaN(income) || income < 0) { showToast('⚠ Please enter a valid income amount.'); return; }
+    if (!category)       { showToast('⚠ Please select a category.'); return; }
+
+    // Build SOAP envelope
+    const soapEnv = buildSoapEnvelope(name, marks, income, category);
+
+    // Show in XML inspector
+    document.getElementById('soapRequest').innerHTML = syntaxHighlight(soapEnv);
+    document.getElementById('soapResponse').innerHTML =
+      '<span class="xml-comm">&lt;!-- Waiting for response... --&gt;</span>';
+    showTab('req');
+
+    // Update UI state
+    const btn = document.getElementById('checkBtn');
+    btn.disabled = true;
+    document.getElementById('btnText').textContent = 'Checking…';
+    document.getElementById('btnIcon').textContent = '⏳';
+
+    document.getElementById('placeholder').style.display = 'none';
+    document.getElementById('loader').style.display      = 'flex';
+    document.getElementById('resultContent').style.display = 'none';
+    setProgress(30);
+
+    try {
+      setProgress(55);
+
+      // ── POST to SOAP endpoint ─────────────────────────
+      const response = await fetch(SOAP_ENDPOINT, {
+        method:  'POST',
+        headers: {
+          'Content-Type': 'text/xml;charset=UTF-8',
+          'SOAPAction':   `"${NAMESPACE}/checkEligibility"`
+        },
+        body: soapEnv
+      });
+
+      setProgress(80);
+      const xmlText = await response.text();
+
+      // Show raw XML response
+      document.getElementById('soapResponse').innerHTML = syntaxHighlight(xmlText);
+
+      // Parse and render results
+      const result = parseSoapResponse(xmlText);
+      renderResults(result, name);
+      setProgress(100);
+      setTimeout(() => setProgress(0), 1200);
+
+    } catch (err) {
+      // ── Demo mode: simulate response when backend is offline ──
+      console.warn('Backend offline – running in demo mode:', err.message);
+      const simResult = simulateResponse(name, marks, income, category);
+      const simXml    = buildSimulatedXmlResponse(simResult);
+      document.getElementById('soapResponse').innerHTML = syntaxHighlight(simXml);
+      renderResults(simResult, name);
+      showToast('ℹ Demo mode: backend not reachable');
+      setProgress(100);
+      setTimeout(() => setProgress(0), 1200);
+    } finally {
+      document.getElementById('loader').style.display = 'none';
+      btn.disabled = false;
+      document.getElementById('btnText').textContent = 'Check Eligibility via SOAP';
+      document.getElementById('btnIcon').textContent = '🔍';
+    }
+  }
+
+  /* ── Render results to UI ────────────────────────────── */
+  function renderResults(result, name) {
+    const container = document.getElementById('resultContent');
+    container.style.display = 'block';
+
+    if (result.eligible && result.scholarships.length > 0) {
+      let html = `
+        <div class="result-status success">
+          <span class="status-icon">✅</span>
+          <span>${result.message}</span>
+        </div>
+        <div class="scholarship-list">`;
+
+      result.scholarships.forEach((s, i) => {
+        html += `
+          <div class="scholarship-card" style="animation-delay:${i * 0.07}s">
+            <div class="sc-code">${s.schemeCode}</div>
+            <div class="sc-top">
+              <div class="sc-name">${s.name}</div>
+              <div class="sc-amount">₹${s.amountPerYear.toLocaleString('en-IN')}/yr</div>
+            </div>
+            <div class="sc-desc">${s.description}</div>
+          </div>`;
+      });
+
+      html += '</div>';
+      container.innerHTML = html;
+
+    } else {
+      container.innerHTML = `
+        <div class="result-status error">
+          <span class="status-icon">❌</span>
+          <span>${result.message || 'No scholarships found for this profile.'}</span>
+        </div>
+        <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">
+          Consider improving marks or checking alternate schemes at NSP portal.
+        </div>`;
+    }
+  }
+
+  /* ── DEMO MODE: simulate eligibility logic client-side ── */
+  const SCHEMES = [
+    { schemeCode:'PM-SC-001',  name:'Post-Matric Scholarship for SC',    description:'Central govt scholarship for SC students.', minMarks:50, maxIncome:250000, cats:['SC'],             amount:15000 },
+    { schemeCode:'PM-ST-001',  name:'Post-Matric Scholarship for ST',    description:'Central govt scholarship for ST students.', minMarks:50, maxIncome:250000, cats:['ST'],             amount:15000 },
+    { schemeCode:'PM-OBC-001', name:'Post-Matric Scholarship for OBC',   description:'Central govt scholarship for OBC students.',minMarks:55, maxIncome:150000, cats:['OBC'],            amount:10000 },
+    { schemeCode:'NMS-001',    name:'National Merit Scholarship',         description:'Merit scholarship for all categories.',     minMarks:85, maxIncome:600000, cats:['GEN','OBC','SC','ST'], amount:20000 },
+    { schemeCode:'PMSS-001',   name:'Prime Minister Scholarship Scheme',  description:'For wards of ex-servicemen.',               minMarks:75, maxIncome:500000, cats:['GEN','OBC','SC','ST'], amount:25000 },
+    { schemeCode:'DA-PMS-001', name:'Dr. Ambedkar PMS',                   description:'For OBC/EBC post-matric students.',         minMarks:60, maxIncome:300000, cats:['OBC'],            amount:12000 },
+    { schemeCode:'CSS-001',    name:'Central Sector Scheme of Scholarships',description:'Merit-cum-means for college students.',   minMarks:80, maxIncome:450000, cats:['GEN','OBC','SC','ST'], amount:12000 },
+    { schemeCode:'TCES-SC-001',name:'Top Class Education Scheme for SC',  description:'For SC students in premier institutions.',  minMarks:70, maxIncome:600000, cats:['SC'],             amount:75000 },
+  ];
+
+  function simulateResponse(name, marks, income, category) {
+    const matched = SCHEMES.filter(s =>
+      marks  >= s.minMarks &&
+      income <= s.maxIncome &&
+      s.cats.includes(category)
+    ).map(s => ({
+      schemeCode:    s.schemeCode,
+      name:          s.name,
+      description:   s.description,
+      amountPerYear: s.amount
+    }));
+
+    return {
+      eligible:     matched.length > 0,
+      message:      matched.length > 0
+        ? `Congratulations! You are eligible for ${matched.length} scholarship(s).`
+        : 'No scholarship schemes matched your profile.',
+      scholarships: matched.sort((a,b) => b.amountPerYear - a.amountPerYear)
+    };
+  }
+
+  function buildSimulatedXmlResponse(result) {
+    let schStr = result.scholarships.map(s => `
+      <scholarships>
+        <schemeCode>${s.schemeCode}</schemeCode>
+        <name>${escapeXml(s.name)}</name>
+        <description>${escapeXml(s.description)}</description>
+        <amountPerYear>${s.amountPerYear}</amountPerYear>
+      </scholarships>`).join('');
+
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope
+  xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:tns="${NAMESPACE}">
+  <soapenv:Body>
+    <tns:checkEligibilityResponse>
+      <return>
+        <eligible>${result.eligible}</eligible>
+        <message>${escapeXml(result.message)}</message>${schStr}
+      </return>
+    </tns:checkEligibilityResponse>
+  </soapenv:Body>
+</soapenv:Envelope>`;
+  }
+
+  /* ── XML Syntax Highlighter ──────────────────────────── */
+  function syntaxHighlight(xml) {
+    xml = xml
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;');
+
+    return xml
+      // XML/SOAP tags
+      .replace(/(&lt;\/?[\w:.-]+)/g, '<span class="xml-tag">$1</span>')
+      // Attributes
+      .replace(/(\w+)=(&quot;[^&]*&quot;)/g,
+        '<span class="xml-attr">$1</span>=<span class="xml-val">$2</span>')
+      // Closing >
+      .replace(/(&gt;)(?![\s\S]*&lt;\/)/g, '$1')
+      // Comments
+      .replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span class="xml-comm">$1</span>');
+  }
+</script>
+
+</body>
+</html>
